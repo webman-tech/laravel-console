@@ -1,0 +1,13 @@
+{
+  "name": "webman-tech/laravel-console",
+  "type": "library",
+  "license": "MIT",
+  "description": "Webman plugin webman-tech/laravel-console",
+  "require": {
+  },
+  "autoload": {
+    "psr-4": {
+      "WebmanTech\\LaravelConsole\\": "src"
+    }
+  }
+}
