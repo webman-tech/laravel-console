@@ -12,4 +12,7 @@ return [
         // add some deps
         return $container;
     },
+    'commands' => [
+        // commandName
+    ],
 ];

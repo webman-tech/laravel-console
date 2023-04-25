@@ -18,7 +18,8 @@ class Kernel
         'container' => null,
         'version' => '1.0.0',
         'name' => 'Webman Artisan',
-        'commands' => [
+        'commands' => [],
+        'commands_path' => [
             // path => namespace
         ],
     ];
@@ -103,19 +104,27 @@ class Kernel
     protected function loadCommands()
     {
         // 按目录扫描的命令
-        $commands = array_merge([
+        $commandPaths = array_merge([
             base_path() . '/vendor/webman/console/src/Commands' => 'Webman\Console\Commands',
             app_path() . '/command' => 'app\command',
-        ], $this->config['commands']);
+        ], $this->config['commands_path']);
 
-        foreach ($commands as $path => $namespace) {
+        foreach ($commandPaths as $path => $namespace) {
             if (!is_dir($path)) {
                 continue;
             }
             $this->installCommands($path, $namespace);
         }
 
-        // plugin 中的命令
+        // 按 class 添加命令
+        foreach ($this->config['commands'] as $command) {
+            $this->registerCommand($command);
+        }
+
+        /**
+         * plugin 中的命令
+         * @see webman/console 中的 webman
+         */
         foreach (config('plugin', []) as $firm => $projects) {
             if (isset($projects['app'])) {
                 if ($command_str = (base_path() . "/plugin/$firm/command")) {
