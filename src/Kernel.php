@@ -102,6 +102,7 @@ class Kernel
 
     protected function loadCommands()
     {
+        // 按目录扫描的命令
         $commands = array_merge([
             base_path() . '/vendor/webman/console/src/Commands' => 'Webman\Console\Commands',
             app_path() . '/command' => 'app\command',
@@ -113,13 +114,30 @@ class Kernel
             }
             $this->installCommands($path, $namespace);
         }
+
+        // plugin 中的命令
+        foreach (config('plugin', []) as $firm => $projects) {
+            if (isset($projects['app'])) {
+                if ($command_str = (base_path() . "/plugin/$firm/command")) {
+                    $command_path = base_path() . "/plugin/$firm/$command_str";
+                    $this->installCommands($command_path, "plugin\\$firm\\$command_str");
+                }
+            }
+            foreach ($projects as $name => $project) {
+                if (!is_array($project)) {
+                    continue;
+                }
+                foreach ($project['command'] ?? [] as $command) {
+                    $this->registerCommand($command);
+                }
+            }
+        }
     }
 
     protected function getArtisan(): ApplicationContract
     {
         return $this->container->get(ApplicationContract::class);
     }
-
 
     /**
      * @param $path
@@ -150,9 +168,22 @@ class Kernel
                 continue;
             }
 
-            Application::starting(function (Application $artisan) use ($class_name) {
-                $artisan->resolve($class_name);
-            });
+            $this->registerCommand($class_name);
         }
+    }
+
+    /**
+     * @param string|Command $command
+     * @return void
+     */
+    public function registerCommand($command)
+    {
+        Application::starting(function (Application $artisan) use ($command) {
+            if ($command instanceof Command) {
+                $artisan->add($command);
+                return;
+            }
+            $artisan->resolve($command);
+        });
     }
 }
