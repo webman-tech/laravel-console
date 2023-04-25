@@ -10,6 +10,7 @@ class Install
      */
     protected static $pathRelation = array (
   'config/plugin/webman-tech/laravel-console' => 'config/plugin/webman-tech/laravel-console',
+  'artisan' => 'artisan'
 );
 
     /**

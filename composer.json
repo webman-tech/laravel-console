@@ -4,10 +4,21 @@
   "license": "MIT",
   "description": "Webman plugin webman-tech/laravel-console",
   "require": {
+    "php": ">=7.4",
+    "illuminate/console": ">=8",
+    "illuminate/container": ">=8",
+    "illuminate/events": ">=8"
+  },
+  "require-dev": {
+    "workerman/webman-framework": "^1.5",
+    "webman/console": "^1.2"
   },
   "autoload": {
     "psr-4": {
       "WebmanTech\\LaravelConsole\\": "src"
     }
+  },
+  "config": {
+    "sort-packages": true
   }
 }
