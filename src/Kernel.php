@@ -82,6 +82,10 @@ class Kernel
                 $app = new Application($this->container, $this->container->get(DispatcherContract::class), $this->config['version']);
                 $app->setName($this->config['name']);
                 $app->setCatchExceptions(true);
+                // fix for illuminate/console >= 9
+                if (method_exists($app, 'setContainerCommandLoader')) {
+                    $app->setContainerCommandLoader();
+                }
                 return $app;
             });
         }
