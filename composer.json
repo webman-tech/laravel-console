@@ -10,6 +10,7 @@
     "illuminate/events": ">=8"
   },
   "require-dev": {
+    "phpunit/phpunit": "^9",
     "workerman/webman-framework": "^1.5",
     "webman/console": "^1.2"
   },
@@ -18,7 +19,16 @@
       "WebmanTech\\LaravelConsole\\": "src"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "WebmanTech\\LaravelConsole\\Tests\\": "tests",
+      "app\\": "tests\\app"
+    }
+  },
   "config": {
     "sort-packages": true
+  },
+  "scripts": {
+    "test": "phpunit --testdox --no-interaction"
   }
 }

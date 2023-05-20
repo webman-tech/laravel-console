@@ -14,7 +14,7 @@ class Artisan
     /**
      * @var null|Kernel
      */
-    protected static $_instance = null;
+    protected static ?Kernel $_instance = null;
 
     public static function instance(): Kernel
     {
