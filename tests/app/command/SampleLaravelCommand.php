@@ -2,17 +2,14 @@
 
 namespace app\command;
 
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Illuminate\Console\Command;
 
 class SampleLaravelCommand extends Command
 {
-    protected static $defaultName = 'sample:laravel';
+    protected $signature = 'sample:symfony';
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    public function handle(): void
     {
-        $output->writeln('sample:laravel result');
-        return self::SUCCESS;
+        $this->info('sample:symfony result');
     }
 }
