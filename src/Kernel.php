@@ -3,6 +3,7 @@
 namespace WebmanTech\LaravelConsole;
 
 use Illuminate\Console\Application;
+use Illuminate\Console\Concerns\ConfiguresPrompts;
 use Illuminate\Contracts\Console\Application as ApplicationContract;
 use Illuminate\Contracts\Container\Container as ContainerContract;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
@@ -11,6 +12,7 @@ use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use WebmanTech\LaravelConsole\Wrapper\LaravelContainerWrapper;
 
 class Kernel
 {
@@ -79,7 +81,13 @@ class Kernel
         }
         if (!$this->container->has(ApplicationContract::class)) {
             $this->container->singleton(ApplicationContract::class, function () {
-                $app = new Application($this->container, $this->container->get(DispatcherContract::class), $this->config['version']);
+                $laravel = $this->container;
+                if (trait_exists(ConfiguresPrompts::class)) {
+                    // 为了解决 ConfiguresPrompts 中通过 $this->laravel->runningUnitTests() 的问题
+                    // https://github.com/webman-tech/laravel-console/issues/2
+                    $laravel = new LaravelContainerWrapper($laravel);
+                }
+                $app = new Application($laravel, $this->container->get(DispatcherContract::class), $this->config['version']);
                 $app->setName($this->config['name']);
                 $app->setCatchExceptions(true);
                 // fix for illuminate/console >= 9
