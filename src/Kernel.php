@@ -139,7 +139,7 @@ class Kernel
          */
         foreach (config('plugin', []) as $firm => $projects) {
             if (isset($projects['app'])) {
-                if ($command_str = (base_path() . "/plugin/$firm/command")) {
+                if ($command_str = self::guessPath(base_path() . "/plugin/$firm", 'command')) {
                     $command_path = base_path() . "/plugin/$firm/$command_str";
                     $this->installCommands($command_path, "plugin\\$firm\\$command_str");
                 }
@@ -206,5 +206,38 @@ class Kernel
             }
             $artisan->resolve($command);
         });
+    }
+
+    /**
+     * @see Util::guessPath()
+     * @param $base_path
+     * @param $name
+     * @param $return_full_path
+     * @return false|string
+     */
+    private static function guessPath($base_path, $name, $return_full_path = false)
+    {
+        if (!is_dir($base_path)) {
+            return false;
+        }
+        $names = explode('/', trim(strtolower($name), '/'));
+        $realname = [];
+        $path = $base_path;
+        foreach ($names as $name) {
+            $finded = false;
+            foreach (scandir($path) ?: [] as $tmp_name) {
+                if (strtolower($tmp_name) === $name && is_dir("$path/$tmp_name")) {
+                    $path = "$path/$tmp_name";
+                    $realname[] = $tmp_name;
+                    $finded = true;
+                    break;
+                }
+            }
+            if (!$finded) {
+                return false;
+            }
+        }
+        $realname = implode(DIRECTORY_SEPARATOR, $realname);
+        return $return_full_path ? get_realpath($base_path . DIRECTORY_SEPARATOR . $realname) : $realname;
     }
 }
