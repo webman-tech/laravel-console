@@ -29,6 +29,8 @@ class ArtisanTest extends TestCase
         // 扫描 app/command 的命令
         $this->assertStringContainsString('sample:symfony', $listOutput);
         $this->assertStringContainsString('sample:laravel', $listOutput);
+        // 扫描 plugin/ 的命令
+        $this->assertStringContainsString('sample:tt:symfony', $listOutput);
     }
 
     public function testCommand()

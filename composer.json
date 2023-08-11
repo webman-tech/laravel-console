@@ -22,6 +22,7 @@
   "autoload-dev": {
     "psr-4": {
       "WebmanTech\\LaravelConsole\\Tests\\": "tests",
+      "": "tests",
       "app\\": "tests\\app"
     }
   },
