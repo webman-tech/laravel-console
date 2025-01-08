@@ -6,8 +6,23 @@ use support\Container;
 use WebmanTech\LaravelConsole\Kernel;
 
 /**
- * @method static int call(string $command, array $parameters = [], $outputBuffer = null)
+ * @method static int handle(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface|null $output = null)
+ * @method static void terminate(\Symfony\Component\Console\Input\InputInterface $input, int $status)
+ * @method static void whenCommandLifecycleIsLongerThan(\DateTimeInterface|\Carbon\CarbonInterval|float|int $threshold, callable $handler)
+ * @method static \Illuminate\Support\Carbon|null commandStartedAt()
+ * @method static \Illuminate\Console\Scheduling\Schedule resolveConsoleSchedule()
+ * @method static void registerCommand(\Symfony\Component\Console\Command\Command $command)
+ * @method static int call(string $command, array $parameters = [], \Symfony\Component\Console\Output\OutputInterface|null $outputBuffer = null)
+ * @method static array all()
  * @method static string output()
+ * @method static void bootstrap()
+ * @method static void bootstrapWithoutBootingProviders()
+ * @method static void setArtisan(\Illuminate\Console\Application|null $artisan)
+ * @method static \WebmanTech\LaravelConsole\Kernel addCommands(array $commands)
+ * @method static \WebmanTech\LaravelConsole\Kernel addCommandPaths(array $paths)
+ * @method static \WebmanTech\LaravelConsole\Kernel addCommandRoutePaths(array $paths)
+ *
+ * @see \WebmanTech\LaravelConsole\Kernel
  */
 class Artisan
 {
