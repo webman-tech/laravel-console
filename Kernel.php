@@ -4,24 +4,25 @@ namespace WebmanTech\LaravelConsole;
 
 use Illuminate\Console\Application;
 use Illuminate\Console\Concerns\ConfiguresPrompts;
+use Illuminate\Container\Container as LaravelContainer;
 use Illuminate\Contracts\Console\Application as ApplicationContract;
 use Illuminate\Contracts\Container\Container as ContainerContract;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Events\Dispatcher;
-use InvalidArgumentException;
 use support\Container;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WebmanTech\LaravelConsole\Helper\ConfigHelper;
-use WebmanTech\LaravelConsole\Wrapper\LaravelContainerWrapper;
+use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
+use WebmanTech\LaravelConsole\Mock\LaravelContainerWrapper;
 
 class Kernel
 {
     private array $config = [
-        'container' => null,
         'version' => '1.0.0',
         'name' => 'Webman Artisan',
+        'catch_exceptions' => true,
         'commands' => [],
         'commands_path' => [
             // path => namespace
@@ -36,16 +37,12 @@ class Kernel
     {
         $this->config = array_merge(
             $this->config,
-            ConfigHelper::get('artisan', [
-                'container' => fn() => null,
-            ]),
+            ConfigHelper::get('artisan', []),
         );
 
-        $container = $this->config['container']();
-        if (!$container instanceof ContainerContract) {
-            throw new InvalidArgumentException('container must be an instance of ' . ContainerContract::class);
-        }
-        $this->container = $container;
+        $this->container = ExtComponentGetter::get(ContainerContract::class, [
+            'default' => fn() => LaravelContainer::getInstance()
+        ]);
     }
 
     public function handle(InputInterface $input, ?OutputInterface $output = null): int
@@ -91,7 +88,7 @@ class Kernel
                 }
                 $app = new Application($laravel, $this->container->get(DispatcherContract::class), $this->config['version']);
                 $app->setName($this->config['name']);
-                $app->setCatchExceptions(true);
+                $app->setCatchExceptions($this->config['catch_exceptions']);
                 // fix for illuminate/console >= 9
                 if (method_exists($app, 'setContainerCommandLoader')) {
                     $app->setContainerCommandLoader();

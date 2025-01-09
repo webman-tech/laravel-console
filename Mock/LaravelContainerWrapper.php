@@ -1,10 +1,13 @@
 <?php
 
-namespace WebmanTech\LaravelConsole\Wrapper;
+namespace WebmanTech\LaravelConsole\Mock;
 
 use Closure;
 use Illuminate\Container\Container;
 
+/**
+ * @internal
+ */
 final class LaravelContainerWrapper implements \Illuminate\Contracts\Container\Container
 {
     private Container $container;
