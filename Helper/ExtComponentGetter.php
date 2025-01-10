@@ -35,4 +35,26 @@ class ExtComponentGetter
 
         return $component;
     }
+
+    /**
+     * @param array $components
+     * @param array $pick
+     * @return mixed
+     */
+    public static function getNoCheck(array $components, array $pick = []): mixed
+    {
+        foreach ($components as $component) {
+            if (Container::has($component)) {
+                return Container::get($component);
+            }
+        }
+        if ($pick) {
+            foreach ($pick as $className => $getInstance) {
+                if ($className === 'default' || class_exists($className)) {
+                    return $getInstance();
+                }
+            }
+        }
+        return null;
+    }
 }

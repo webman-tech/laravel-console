@@ -2,20 +2,18 @@
 
 namespace WebmanTech\LaravelConsole;
 
-use Illuminate\Console\Application;
-use Illuminate\Console\Concerns\ConfiguresPrompts;
+use Illuminate\Console\Application as Artisan;
 use Illuminate\Container\Container as LaravelContainer;
 use Illuminate\Contracts\Console\Application as ApplicationContract;
 use Illuminate\Contracts\Container\Container as ContainerContract;
-use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
-use Illuminate\Events\Dispatcher;
 use support\Container;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WebmanTech\LaravelConsole\Helper\ConfigHelper;
 use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
-use WebmanTech\LaravelConsole\Mock\LaravelContainerWrapper;
+use WebmanTech\LaravelConsole\Mock\DatabaseMigration\MigrationServiceProvider;
+use WebmanTech\LaravelConsole\Mock\LaravelApp;
 
 class Kernel
 {
@@ -23,12 +21,17 @@ class Kernel
         'version' => '1.0.0',
         'name' => 'Webman Artisan',
         'catch_exceptions' => true,
-        'commands' => [],
+        'commands' => [], // 需要额外补充的 Command 类
+        'commands_ignore' => [], // 忽略的 Command 类
         'commands_path' => [
             // path => namespace
         ],
+        'commands_scan' => [
+            'webman' => true, // 是否扫描 webman/console
+            'illuminate_database' => true, // 是否扫描 illuminate/database
+        ],
     ];
-    private ContainerContract $container;
+    private LaravelApp $app;
 
     private bool $bootstrapped = false;
     private bool $commandsLoaded = false;
@@ -40,9 +43,10 @@ class Kernel
             ConfigHelper::get('artisan', []),
         );
 
-        $this->container = ExtComponentGetter::get(ContainerContract::class, [
+        $container = ExtComponentGetter::get(ContainerContract::class, [
             'default' => fn() => LaravelContainer::getInstance()
         ]);
+        $this->app = new LaravelApp($container, $this->config['version']);
     }
 
     public function handle(InputInterface $input, ?OutputInterface $output = null): int
@@ -72,36 +76,16 @@ class Kernel
             return;
         }
 
-        // 添加必要依赖
-        if (!$this->container->has(DispatcherContract::class)) {
-            $this->container->singleton(DispatcherContract::class, function () {
-                return new Dispatcher($this->container);
-            });
-        }
-        if (!$this->container->has(ApplicationContract::class)) {
-            $this->container->singleton(ApplicationContract::class, function () {
-                $laravel = $this->container;
-                if (trait_exists(ConfiguresPrompts::class)) {
-                    // 为了解决 ConfiguresPrompts 中通过 $this->laravel->runningUnitTests() 的问题
-                    // https://github.com/webman-tech/laravel-console/issues/2
-                    $laravel = new LaravelContainerWrapper($laravel);
-                }
-                $app = new Application($laravel, $this->container->get(DispatcherContract::class), $this->config['version']);
-                $app->setName($this->config['name']);
-                $app->setCatchExceptions($this->config['catch_exceptions']);
-                // fix for illuminate/console >= 9
-                if (method_exists($app, 'setContainerCommandLoader')) {
-                    $app->setContainerCommandLoader();
-                }
-                return $app;
-            });
-        }
+        // 注册全部依赖
+        $this->app->registerAll();
         // 将自己加入到 container 中，方便后续单独 addCommand 或调其他方法
-        if (!$this->container->has(Kernel::class)) {
-            $this->container->singleton(Kernel::class, function () {
-                return $this;
-            });
-        }
+        $this->app->instance(Kernel::class, $this);
+        // 修改 app 配置参数
+        $this->app->resolving(ApplicationContract::class, function (ApplicationContract $app) {
+            $app->setName($this->config['name']);
+            $app->setCatchExceptions($this->config['catch_exceptions']);
+        });
+
         // 安装命令
         if (!$this->commandsLoaded) {
             $this->loadCommands();
@@ -115,10 +99,20 @@ class Kernel
     protected function loadCommands()
     {
         // 按目录扫描的命令
-        $commandPaths = array_merge([
-            base_path('vendor/webman/console/src/Commands') => 'Webman\Console\Commands',
-            app_path('command') => 'app\command',
-        ], $this->config['commands_path']);
+        $commandPaths = $this->config['commands_path'];
+        // 扫描 app/command 目录
+        $commandPaths[app_path('command')] = 'app\command';
+        // 扫描 webman/console 目录
+        if ($this->config['commands_scan']['webman']) {
+            $commandPaths[base_path('vendor/webman/console/src/Commands')] = 'Webman\Console\Commands';
+        }
+        // 扫描 illuminate/database 目录
+        if ($this->config['commands_scan']['illuminate_database']) {
+            $commandPaths[base_path('vendor/illuminate/database/Console')] = 'Illuminate\Database\Console';
+            $this->config['commands_ignore'][] = \Illuminate\Database\Console\Migrations\BaseCommand::class;
+            $sp = new MigrationServiceProvider($this->app);
+            $sp->register();
+        }
 
         foreach ($commandPaths as $path => $namespace) {
             if (!is_dir($path)) {
@@ -156,7 +150,7 @@ class Kernel
 
     protected function getArtisan(): ApplicationContract
     {
-        return $this->container->get(ApplicationContract::class);
+        return $this->app->get(ApplicationContract::class);
     }
 
     /**
@@ -199,19 +193,24 @@ class Kernel
     public function registerCommand($command)
     {
         if (is_string($command)) {
+            if (in_array($command, $this->config['commands_ignore'], true)) {
+                return;
+            }
+
             $reflection = new \ReflectionClass($command);
-            if (!$reflection->isAbstract()) {
-                if ($name = $reflection->getStaticPropertyValue('defaultName', null)) {
-                    $command = Container::get($command);
-                    $command->setName($name);
-                    if ($description = $reflection->getStaticPropertyValue('defaultDescription', null)) {
-                        $command->setDescription($description);
-                    }
+            if ($reflection->isAbstract()) {
+                return;
+            }
+            if ($name = $reflection->getStaticPropertyValue('defaultName', null)) {
+                $command = Container::get($command);
+                $command->setName($name);
+                if ($description = $reflection->getStaticPropertyValue('defaultDescription', null)) {
+                    $command->setDescription($description);
                 }
             }
         }
 
-        Application::starting(function (Application $artisan) use ($command) {
+        Artisan::starting(function (Artisan $artisan) use ($command) {
             if ($command instanceof Command) {
                 $artisan->add($command);
                 return;
