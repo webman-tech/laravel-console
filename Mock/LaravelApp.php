@@ -289,7 +289,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
     /**
      * @inheritDoc
      */
-    public function beforeResolving($abstract, Closure $callback = null)
+    public function beforeResolving($abstract, ?Closure $callback = null)
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
@@ -297,7 +297,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
     /**
      * @inheritDoc
      */
-    public function resolving($abstract, Closure $callback = null)
+    public function resolving($abstract, ?Closure $callback = null)
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
@@ -305,7 +305,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
     /**
      * @inheritDoc
      */
-    public function afterResolving($abstract, Closure $callback = null)
+    public function afterResolving($abstract, ?Closure $callback = null)
     {
         return $this->__call(__FUNCTION__, func_get_args());
     }
