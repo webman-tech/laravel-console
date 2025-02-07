@@ -14,8 +14,6 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Facade;
-use support\bootstrap\LaravelDb;
-use support\Db;
 use WebmanTech\LaravelConsole\Helper\ConfigHelper;
 use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
 use WebmanTech\LaravelFilesystem\Facades\File;
@@ -55,10 +53,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
             ],
             'db' => [
                 'default' => function () {
-                    if (!Db::getInstance()) {
-                        LaravelDb::start(null);
-                    }
-                    return Db::getInstance()->getDatabaseManager();
+                    return LaravelDb::getInstance()->getDatabaseManager();
                 }
             ],
             'db.schema' => [
