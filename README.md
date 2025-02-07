@@ -1,5 +1,7 @@
 # webman-tech/laravel-console
 
+> Split from [webman-tech/laravel-monorepo](https://github.com/webman-tech/laravel-monorepo)
+
 Laravel [illuminate/console](https://packagist.org/packages/illuminate/console) for webman
 
 ## 为什么会有这个扩展
