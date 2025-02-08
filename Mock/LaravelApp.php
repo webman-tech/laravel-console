@@ -97,7 +97,9 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
             }
         }
 
-        $this->container->resolving('config', function ($config) {
+        if ($this->container->bound('config')) {
+            // 已有 config 配置的，补全 migration 需要的配置
+            $config = $this->container->get('config');
             if (!isset($config['database.migrations'])) {
                 // 没有该 migrations 会导致无法使用 migrate
                 $config['database.migrations'] = [
@@ -105,8 +107,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
                     'update_date_on_publish' => true,
                 ];
             }
-            return $config;
-        });
+        }
 
         Facade::setFacadeApplication($this->container); // 使得迁移脚本中的 Illuminate\Support\Facades\Schema 可用
     }
