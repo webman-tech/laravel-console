@@ -3,7 +3,6 @@
 namespace WebmanTech\LaravelConsole;
 
 use Illuminate\Console\Application as Artisan;
-use Illuminate\Container\Container as LaravelContainer;
 use Illuminate\Contracts\Console\Application as ApplicationContract;
 use Illuminate\Contracts\Container\Container as ContainerContract;
 use support\Container;
@@ -43,9 +42,7 @@ class Kernel
             ConfigHelper::get('artisan', []),
         );
 
-        $container = ExtComponentGetter::get(ContainerContract::class, [
-            'default' => fn() => LaravelContainer::getInstance()
-        ]);
+        $container = ExtComponentGetter::get(ContainerContract::class);
         $this->app = new LaravelApp($container, $this->config['version']);
     }
 
@@ -220,11 +217,11 @@ class Kernel
     }
 
     /**
-     * @see Util::guessPath()
      * @param $base_path
      * @param $name
      * @param $return_full_path
      * @return false|string
+     * @see Util::guessPath()
      */
     private static function guessPath($base_path, $name, $return_full_path = false)
     {

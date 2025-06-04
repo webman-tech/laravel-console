@@ -6,17 +6,14 @@ use Closure;
 use Illuminate\Config\Repository;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Contracts\Console\Application as ApplicationContract;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Database\ConnectionResolverInterface;
-use Illuminate\Events\Dispatcher;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Facade;
-use WebmanTech\LaravelConsole\Helper\ConfigHelper;
 use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
-use WebmanTech\LaravelFilesystem\Facades\File;
 
 /**
  * @internal
@@ -34,67 +31,35 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
     public function registerAll(): void
     {
+        // 以下是 console 下会使用到的组件
         $components = [
-            'events' => [
-                'default' => fn() => new Dispatcher($this->container),
-            ],
-            ApplicationContract::class => [
-                'default' => function () {
-                    $laravel = new LaravelApp($this->container);
-                    $app = new Artisan($laravel, $this->container->get(DispatcherContract::class), $this->appVersion);
-                    $app->setContainerCommandLoader();
+            DispatcherContract::class => ['events'],
+            Filesystem::class => ['files'],
+            ConnectionResolverInterface::class => ['db'],
+            SchemaBuilder::class => ['db.schema'],
+            Composer::class => ['composer'],
+            Repository::class => ['config'],
+        ];
 
-                    return $app;
-                },
-            ],
-            'files' => [
-                File::class => fn() => File::instance(),
-                'default' => fn() => new Filesystem(),
-            ],
-            'db' => [
-                'default' => function () {
-                    return LaravelDb::getInstance()->getDatabaseManager();
+        foreach ($components as $id => $alias) {
+            if (!$this->container->has($id)) {
+                $this->container->singleton($id, fn() => ExtComponentGetter::get($id));
+            }
+            foreach ($alias as $item) {
+                if (!$this->container->has($item)) {
+                    $this->container->singleton($item, fn() => ExtComponentGetter::get($id));
                 }
-            ],
-            'db.schema' => [
-                'default' => fn() => $this->container->get('db')->getSchemaBuilder(),
-            ],
-            'composer' => [
-                'default' => fn() => new Composer($this->container->get('files')),
-            ],
-            'config' => [
-                'default' => fn() => new Repository([
-                    'database' => [
-                        'migrations' => [
-                            'table' => 'migrations',
-                            'update_date_on_publish' => true,
-                        ],
-                        ...ConfigHelper::getGlobal('database'),
-                    ],
-                ]),
-            ],
-        ];
-        $aliases = [
-            'db' => [ConnectionResolverInterface::class],
-            'events' => [DispatcherContract::class],
-            'files' => [Filesystem::class],
-            'config' => [ConfigContract::class],
-        ];
-
-        foreach ($components as $component => $config) {
-            if (!$this->container->has($component)) {
-                $this->container->singleton($component, fn() => ExtComponentGetter::getNoCheck([
-                    $component,
-                    ...$aliases[$component] ?? [],
-                ], $config));
             }
         }
-        foreach ($aliases as $alias => $abstracts) {
-            foreach ($abstracts as $abstract) {
-                if (!$this->container->has($abstract)) {
-                    $this->container->alias($alias, $abstract);
-                }
-            }
+
+        if (!$this->container->has(ApplicationContract::class)) {
+            $this->container->singleton(ApplicationContract::class, function () {
+                $laravel = new LaravelApp($this->container);
+                $app = new Artisan($laravel, $this->container->get(DispatcherContract::class), $this->appVersion);
+                $app->setContainerCommandLoader();
+
+                return $app;
+            });
         }
 
         if ($this->container->bound('config')) {
