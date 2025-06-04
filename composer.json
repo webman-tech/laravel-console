@@ -5,9 +5,9 @@
   "description": "Webman plugin webman-tech/laravel-console",
   "require": {
     "php": "^8.2",
-    "illuminate/console": "^11.0",
-    "illuminate/container": "^11.0",
-    "illuminate/events": "^11.0"
+    "illuminate/console": "^12.0",
+    "illuminate/container": "^12.0",
+    "illuminate/events": "^12.0"
   },
   "autoload": {
     "psr-4": {
