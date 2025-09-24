@@ -12,7 +12,8 @@ Laravel [illuminate/console](https://packagist.org/packages/illuminate/console) 
 
 1. webman/console 是基于 symfony/console 的，比较底层，illuminate/console 同样也是，但是在其上层封装了一层，使用起来更加方便
 2. 给用惯了 laravel 的人一个熟悉的环境（尤其是在建一个 command 时，laravel 的 command 使用 signature 定义参数更加方便）
-3. 现在有很多实用的第三方扩展是基于 laravel，可能迁移其中的组件时能够比较方便，但是其中的 command 无法直接使用，因此本扩展可以让这些扩展的 command 直接使用
+3. 现在有很多实用的第三方扩展是基于 laravel，可能迁移其中的组件时能够比较方便，但是其中的 command 无法直接使用，因此本扩展可以让这些扩展的
+   command 直接使用
 4. 支持 illuminate/database 的 Migration 相关功能
 
 ## 介绍
@@ -107,3 +108,10 @@ use \WebmanTech\LaravelConsole\Facades\Artisan;
 
 Artisan::call('mail:send', ['userId' => 1]);
 ```
+
+## 注意
+
+### 当使用 db:seed 报错 "Target class [Database\Seeders\Xxxx] does not exist" 时
+
+解决办法：主动在 `composer.json` 中添加 psr-4
+的配置，详见 [issue-9](https://github.com/webman-tech/laravel-console/issues/9) 
