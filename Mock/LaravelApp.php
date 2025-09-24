@@ -84,6 +84,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
             'databasePath' => path_combine(base_path(self::DATABASE_PATH), $arguments[0] ?? ''),
             'environment' => config('app.debug') ? 'local' : 'production',
             'basePath' => base_path($arguments[0] ?? ''),
+            'getNamespace' => 'app\\', // 先用 webman 默认的，如果有修改的话暂不支持自动取 composer.json 下的
             default => $this->container->{$name}(...$arguments),
         };
     }
