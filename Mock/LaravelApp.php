@@ -83,6 +83,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
             'runningUnitTests' => false,
             'databasePath' => path_combine(base_path(self::DATABASE_PATH), $arguments[0] ?? ''),
             'environment' => config('app.debug') ? 'local' : 'production',
+            'basePath' => base_path($arguments[0] ?? ''),
             default => $this->container->{$name}(...$arguments),
         };
     }
