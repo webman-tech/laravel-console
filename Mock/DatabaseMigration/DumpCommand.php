@@ -25,6 +25,7 @@ final class DumpCommand extends \Illuminate\Database\Console\DumpCommand
 {
     public function handle(ConnectionResolverInterface $connections, Dispatcher $dispatcher)
     {
+        /** @var Connection $connection */
         $connection = $connections->connection($database = $this->input->getOption('database'));
 
         $this->schemaState($connection)->dump(
@@ -45,12 +46,12 @@ final class DumpCommand extends \Illuminate\Database\Console\DumpCommand
             $dispatcher->dispatch(new MigrationsPruned($connection, $path));
         }
 
-        $this->components->info($info.' successfully.');
+        $this->components->info($info . ' successfully.');
     }
 
     protected function path(Connection $connection)
     {
-        return tap($this->option('path') ?: database_path('schema/'.$connection->getName().'-schema.sql'), function ($path) {
+        return tap($this->option('path') ?: database_path('schema/' . $connection->getName() . '-schema.sql'), function ($path) {
             (new Filesystem)->ensureDirectoryExists(dirname($path));
         });
     }

@@ -43,6 +43,7 @@ class Kernel
         );
 
         $container = ExtComponentGetter::get(ContainerContract::class);
+        /** @phpstan-ignore-next-line */
         $this->app = new LaravelApp($container, $this->config['version']);
     }
 
@@ -50,6 +51,7 @@ class Kernel
     {
         $this->bootstrap();
 
+        /** @phpstan-ignore-next-line */
         return $this->getArtisan()->run($input, $output);
     }
 
@@ -78,7 +80,7 @@ class Kernel
         // 将自己加入到 container 中，方便后续单独 addCommand 或调其他方法
         $this->app->instance(Kernel::class, $this);
         // 修改 app 配置参数
-        $this->app->resolving(ApplicationContract::class, function (ApplicationContract $app) {
+        $this->app->resolving(ApplicationContract::class, function (Artisan $app) {
             $app->setName($this->config['name']);
             $app->setCatchExceptions($this->config['catch_exceptions']);
         });
@@ -107,6 +109,7 @@ class Kernel
         if ($this->config['commands_scan']['illuminate_database']) {
             $commandPaths[base_path('vendor/illuminate/database/Console')] = 'Illuminate\Database\Console';
             $this->config['commands_ignore'][] = \Illuminate\Database\Console\Migrations\BaseCommand::class;
+            /** @phpstan-ignore-next-line */
             $sp = new MigrationServiceProvider($this->app);
             $sp->register();
         }

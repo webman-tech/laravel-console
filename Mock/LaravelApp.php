@@ -74,6 +74,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
             }
         }
 
+        /** @phpstan-ignore-next-line */
         Facade::setFacadeApplication($this->container); // 使得迁移脚本中的 Illuminate\Support\Facades\Schema 可用
     }
 

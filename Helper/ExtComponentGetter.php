@@ -53,6 +53,7 @@ final class ExtComponentGetter extends BaseExtComponentGetter
                 'singleton' => function () {
                     $db = self::get(ConnectionResolverInterface::class);
                     if ($db instanceof ConnectionResolverInterface) {
+                        /** @phpstan-ignore-next-line */
                         return $db->connection()->getSchemaBuilder();
                     }
                     return null;
