@@ -12,7 +12,7 @@ use WebmanTech\LaravelConsole\Kernel;
  * @method static \Illuminate\Support\Carbon|null commandStartedAt()
  * @method static \Illuminate\Console\Scheduling\Schedule resolveConsoleSchedule()
  * @method static void registerCommand(\Symfony\Component\Console\Command\Command $command)
- * @method static int call(string $command, array $parameters = [], \Symfony\Component\Console\Output\OutputInterface|null $outputBuffer = null)
+ * @method static int call(\Symfony\Component\Console\Command\Command|string $command, array $parameters = [], \Symfony\Component\Console\Output\OutputInterface|null $outputBuffer = null)
  * @method static array all()
  * @method static string output()
  * @method static void bootstrap()
