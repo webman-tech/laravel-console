@@ -7,7 +7,7 @@ use WebmanTech\LaravelConsole\Mock\LaravelApp;
 if (!function_exists('WebmanTech\LaravelConsole\Mock\DatabaseMigration\database_path')) {
     function database_path(string $path = '')
     {
-        return path_combine(base_path(LaravelApp::DATABASE_PATH), $path);
+        return LaravelApp::getDatabasePath($path);
     }
 }
 
@@ -23,10 +23,10 @@ final class MigrateCommand extends \Illuminate\Database\Console\Migrations\Migra
             return $this->option('schema-path');
         }
 
-        if (file_exists($path = database_path('schema/'.$connection->getName().'-schema.dump'))) {
+        if (file_exists($path = database_path('schema/' . $connection->getName() . '-schema.dump'))) {
             return $path;
         }
 
-        return database_path('schema/'.$connection->getName().'-schema.sql');
+        return database_path('schema/' . $connection->getName() . '-schema.sql');
     }
 }

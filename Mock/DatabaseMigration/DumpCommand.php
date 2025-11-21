@@ -13,7 +13,7 @@ use WebmanTech\LaravelConsole\Mock\LaravelApp;
 if (!function_exists('WebmanTech\LaravelConsole\Mock\DatabaseMigration\database_path')) {
     function database_path(string $path = '')
     {
-        return path_combine(base_path(LaravelApp::DATABASE_PATH), $path);
+        return LaravelApp::getDatabasePath($path);
     }
 }
 

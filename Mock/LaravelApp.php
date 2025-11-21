@@ -13,6 +13,7 @@ use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Facade;
+use WebmanTech\LaravelConsole\Helper\ConfigHelper;
 use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
 
 /**
@@ -20,13 +21,21 @@ use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
  */
 final class LaravelApp implements \Illuminate\Contracts\Container\Container, \ArrayAccess
 {
-    public const DATABASE_PATH = 'resource/database';
-
     public function __construct(
         private readonly Container $container,
         private readonly string    $appVersion = '1.0.0'
     )
     {
+    }
+
+    private static ?string $databasePath = null;
+
+    public static function getDatabasePath(string $path = ''): string
+    {
+        if (self::$databasePath === null) {
+            self::$databasePath = ConfigHelper::get('artisan.migrate_database_path', 'resource/database');
+        }
+        return path_combine(base_path(self::$databasePath), $path);
     }
 
     public function registerAll(): void
@@ -82,7 +91,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
     {
         return match ($name) {
             'runningUnitTests' => false,
-            'databasePath' => path_combine(base_path(self::DATABASE_PATH), $arguments[0] ?? ''),
+            'databasePath' => self::getDatabasePath($arguments[0] ?? ''),
             'environment' => config('app.debug') ? 'local' : 'production',
             'basePath' => base_path($arguments[0] ?? ''),
             'getNamespace' => 'app\\', // 先用 webman 默认的，如果有修改的话暂不支持自动取 composer.json 下的
