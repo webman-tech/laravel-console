@@ -2,6 +2,8 @@
 
 namespace WebmanTech\LaravelConsole\Helper;
 
+use function WebmanTech\CommonUtils\config;
+
 /**
  * @internal
  */

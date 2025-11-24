@@ -15,6 +15,7 @@ use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Facade;
 use WebmanTech\LaravelConsole\Helper\ConfigHelper;
 use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
+use function WebmanTech\CommonUtils\base_path;
 
 /**
  * @internal

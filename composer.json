@@ -7,7 +7,8 @@
     "php": "^8.2",
     "illuminate/console": "^12.0",
     "illuminate/container": "^12.0",
-    "illuminate/events": "^12.0"
+    "illuminate/events": "^12.0",
+    "webman-tech/common-utils": "^5.0 || dev-main"
   },
   "autoload": {
     "psr-4": {

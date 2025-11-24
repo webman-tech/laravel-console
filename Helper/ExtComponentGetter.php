@@ -6,6 +6,7 @@ use Illuminate\Config\Repository;
 use Illuminate\Container\Container as LaravelContainer;
 use Illuminate\Contracts\Container\Container as ContainerContract;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
+use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\Console\Migrations\MigrateMakeCommand;
 use Illuminate\Database\MigrationServiceProvider;
@@ -52,9 +53,9 @@ final class ExtComponentGetter extends BaseExtComponentGetter
                 // 原先用的 bind，此处暂时先用 singleton，不确定是否会有问题
                 'singleton' => function () {
                     $db = self::get(ConnectionResolverInterface::class);
-                    if ($db instanceof ConnectionResolverInterface) {
-                        /** @phpstan-ignore-next-line */
-                        return $db->connection()->getSchemaBuilder();
+                    $connection = $db?->connection();
+                    if ($connection instanceof Connection) {
+                        return $connection->getSchemaBuilder();
                     }
                     return null;
                 }

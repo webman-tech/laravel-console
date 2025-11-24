@@ -2,7 +2,7 @@
 
 namespace WebmanTech\LaravelConsole\Facades;
 
-use support\Container;
+use WebmanTech\CommonUtils\Container;
 use WebmanTech\LaravelConsole\Kernel;
 
 /**

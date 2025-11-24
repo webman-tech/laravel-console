@@ -6,6 +6,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Console\DumpCommand as LaravelDumpCommand;
 use Illuminate\Database\Console\Migrations\MigrateCommand as LaravelMigrateCommand;
 use Illuminate\Database\Migrations\MigrationCreator;
+use function WebmanTech\CommonUtils\base_path;
 
 /**
  * @internal

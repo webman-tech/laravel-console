@@ -5,14 +5,19 @@ namespace WebmanTech\LaravelConsole;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Contracts\Console\Application as ApplicationContract;
 use Illuminate\Contracts\Container\Container as ContainerContract;
-use support\Container;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use WebmanTech\CommonUtils\Container;
+use WebmanTech\LaravelConsole\Helper\ArrayHelper;
 use WebmanTech\LaravelConsole\Helper\ConfigHelper;
 use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
 use WebmanTech\LaravelConsole\Mock\DatabaseMigration\MigrationServiceProvider;
 use WebmanTech\LaravelConsole\Mock\LaravelApp;
+use function WebmanTech\CommonUtils\app_path;
+use function WebmanTech\CommonUtils\base_path;
+use function WebmanTech\CommonUtils\config;
+use function WebmanTech\CommonUtils\vendor_path;
 
 class Kernel
 {
@@ -29,6 +34,9 @@ class Kernel
             'webman' => true, // 是否扫描 webman/console
             'illuminate_database' => true, // 是否扫描 illuminate/database
         ],
+        'namespace' => [
+            'command' => 'app\command',
+        ]
     ];
     private LaravelApp $app;
 
@@ -37,7 +45,7 @@ class Kernel
 
     public function __construct()
     {
-        $this->config = array_merge(
+        $this->config = ArrayHelper::merge(
             $this->config,
             ConfigHelper::get('artisan', []),
         );
@@ -100,14 +108,14 @@ class Kernel
         // 按目录扫描的命令
         $commandPaths = $this->config['commands_path'];
         // 扫描 app/command 目录
-        $commandPaths[app_path('command')] = 'app\command';
+        $commandPaths[app_path('command')] = $this->config['namespace']['command'];
         // 扫描 webman/console 目录
         if ($this->config['commands_scan']['webman']) {
-            $commandPaths[base_path('vendor/webman/console/src/Commands')] = 'Webman\Console\Commands';
+            $commandPaths[vendor_path('webman/console/src/Commands')] = 'Webman\Console\Commands';
         }
         // 扫描 illuminate/database 目录
         if ($this->config['commands_scan']['illuminate_database']) {
-            $commandPaths[base_path('vendor/illuminate/database/Console')] = 'Illuminate\Database\Console';
+            $commandPaths[vendor_path('illuminate/database/Console')] = 'Illuminate\Database\Console';
             $this->config['commands_ignore'][] = \Illuminate\Database\Console\Migrations\BaseCommand::class;
             /** @phpstan-ignore-next-line */
             $sp = new MigrationServiceProvider($this->app);
