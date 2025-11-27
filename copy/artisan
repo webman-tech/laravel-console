@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
 
-use support\Container;
 use Webman\Config;
+use WebmanTech\CommonUtils\Container;
 use WebmanTech\LaravelConsole\Kernel;
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 // same as webman/console
 if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
@@ -20,7 +20,7 @@ if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', '
     }
 }
 
-$kernel = Container::get(Kernel::class);
+$kernel = Container::getCurrent()->get(Kernel::class);
 $status = $kernel->handle(
     $input = new Symfony\Component\Console\Input\ArgvInput,
     new Symfony\Component\Console\Output\ConsoleOutput

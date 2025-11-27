@@ -34,7 +34,7 @@ class Artisan
     public static function instance(): Kernel
     {
         if (!static::$_instance) {
-            static::$_instance = Container::make(Kernel::class, []);
+            static::$_instance = Container::getCurrent()->make(Kernel::class, []);
         }
         return static::$_instance;
     }

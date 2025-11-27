@@ -210,7 +210,7 @@ class Kernel
                 return;
             }
             if ($name = $reflection->getStaticPropertyValue('defaultName', null)) {
-                $command = Container::get($command);
+                $command = Container::getCurrent()->get($command);
                 $command->setName($name);
                 if ($description = $reflection->getStaticPropertyValue('defaultDescription', null)) {
                     $command->setDescription($description);
