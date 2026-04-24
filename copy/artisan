@@ -1,11 +1,38 @@
 #!/usr/bin/env php
 <?php
 
+// 同 webman/console: src/webman
+
+use Dotenv\Dotenv;
 use Webman\Config;
 use WebmanTech\CommonUtils\Container;
 use WebmanTech\LaravelConsole\Kernel;
 
-require __DIR__ . '/vendor/autoload.php';
+if (!Phar::running()) {
+    chdir(__DIR__);
+}
+require_once __DIR__ . '/vendor/autoload.php';
+
+if (!$appConfigFile = config_path('app.php')) {
+    throw new RuntimeException('Config file not found: app.php');
+}
+
+if (class_exists(Dotenv::class) && file_exists(run_path('.env'))) {
+    if (method_exists(Dotenv::class, 'createUnsafeImmutable')) {
+        Dotenv::createUnsafeImmutable(run_path())->load();
+    } else {
+        Dotenv::createMutable(run_path())->load();
+    }
+}
+
+$appConfig = require $appConfigFile;
+if ($timezone = $appConfig['default_timezone'] ?? '') {
+    date_default_timezone_set($timezone);
+}
+
+if ($errorReporting = $appConfig['error_reporting'] ?? '') {
+    error_reporting($errorReporting);
+}
 
 // same as webman/console
 if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
