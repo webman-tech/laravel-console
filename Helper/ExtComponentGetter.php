@@ -15,7 +15,7 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemServiceProvider;
 use Illuminate\Support\Composer;
-use WebmanTech\LaravelConsole\Mock\LaravelDb;
+use WebmanTech\LaravelDatabase\Facades\DB;
 
 /**
  * @internal
@@ -41,12 +41,8 @@ final class ExtComponentGetter extends BaseExtComponentGetter
             /** @see DatabaseServiceProvider::registerConnectionServices() */
             ConnectionResolverInterface::class => [
                 'alias' => ['db'],
-                'singleton' => function () {
-                    if (class_exists('Illuminate\Database\Capsule\Manager') && class_exists('support\Db')) {
-                        return LaravelDb::getInstance()->getDatabaseManager();
-                    }
-                    return null;
-                }
+                // laravel-database 为可选依赖，未安装时返回 null（migration/schema 使用时才需要）
+                'singleton' => fn() => class_exists(DB::class) ? DB::resolveDefault() : null,
             ],
             SchemaBuilder::class => [
                 'alias' => ['db.schema'],
@@ -75,7 +71,7 @@ final class ExtComponentGetter extends BaseExtComponentGetter
                             'table' => 'migrations',
                             'update_date_on_publish' => true,
                         ],
-                        ...ConfigHelper::getGlobal('database'),
+                        ...(array)ConfigHelper::getGlobal('database'),
                     ],
                 ]),
             ],
