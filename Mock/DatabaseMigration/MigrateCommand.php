@@ -5,7 +5,7 @@ namespace WebmanTech\LaravelConsole\Mock\DatabaseMigration;
 use WebmanTech\LaravelConsole\Mock\LaravelApp;
 
 if (!function_exists('WebmanTech\LaravelConsole\Mock\DatabaseMigration\database_path')) {
-    function database_path(string $path = '')
+    function database_path(string $path = ''): string
     {
         return LaravelApp::getDatabasePath($path);
     }

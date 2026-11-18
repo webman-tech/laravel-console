@@ -63,6 +63,10 @@ class Kernel
         return $this->getArtisan()->run($input, $output);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $outputBuffer
+     */
     public function call(string $command, array $parameters = [], $outputBuffer = null): int
     {
         $this->bootstrap();
@@ -77,7 +81,7 @@ class Kernel
         return $this->getArtisan()->output();
     }
 
-    protected function bootstrap()
+    protected function bootstrap(): void
     {
         if ($this->bootstrapped) {
             return;
@@ -103,7 +107,7 @@ class Kernel
         $this->bootstrapped = true;
     }
 
-    protected function loadCommands()
+    protected function loadCommands(): void
     {
         // 按目录扫描的命令
         $commandPaths = $this->config['commands_path'];
@@ -162,12 +166,9 @@ class Kernel
     }
 
     /**
-     * @param $path
-     * @param $namespace
-     * @return void
      * @see \Webman\Console\Command::installCommands
      */
-    public function installCommands($path, $namespace)
+    public function installCommands(string $path, string $namespace): void
     {
         $dir_iterator = new \RecursiveDirectoryIterator($path);
         $iterator = new \RecursiveIteratorIterator($dir_iterator);
@@ -228,13 +229,9 @@ class Kernel
     }
 
     /**
-     * @param $base_path
-     * @param $name
-     * @param $return_full_path
-     * @return false|string
      * @see Util::guessPath()
      */
-    private static function guessPath($base_path, $name, $return_full_path = false)
+    private static function guessPath(string $base_path, string $name, bool $return_full_path = false): string|false
     {
         if (!is_dir($base_path)) {
             return false;

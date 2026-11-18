@@ -20,6 +20,7 @@ use function WebmanTech\CommonUtils\base_path;
 
 /**
  * @internal
+ * @implements \ArrayAccess<string, mixed>
  */
 final class LaravelApp implements \Illuminate\Contracts\Container\Container, \ArrayAccess
 {
@@ -91,7 +92,10 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
         Facade::setFacadeApplication($this->container); // 使得迁移脚本中的 Illuminate\Support\Facades\Schema 可用
     }
 
-    public function __call($name, $arguments)
+    /**
+     * @param array<int|string, mixed> $arguments
+     */
+    public function __call(string $name, array $arguments): mixed
     {
         return match ($name) {
             'runningUnitTests' => false,
@@ -121,6 +125,8 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
     /**
      * @inheritDoc
+     * @param array<int|string, mixed>|string $abstracts
+     * @param array<int|string, mixed>|string $tags
      */
     public function tag($abstracts, $tags)
     {
@@ -129,6 +135,8 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
     /**
      * @inheritDoc
+     * @param string $tag
+     * @return iterable<mixed>
      */
     public function tagged($tag)
     {
@@ -145,6 +153,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
     /**
      * @inheritDoc
+     * @param array<string, mixed> $method
      */
     public function bindMethod($method, $callback)
     {
@@ -217,6 +226,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
     /**
      * @inheritDoc
+     * @param array<int|string, mixed>|string $concrete
      */
     public function when($concrete)
     {
@@ -241,6 +251,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
     /**
      * @inheritDoc
+     * @param array<string, mixed> $parameters
      */
     public function make($abstract, array $parameters = [])
     {
@@ -249,6 +260,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
     /**
      * @inheritDoc
+     * @param array<string, mixed> $parameters
      */
     public function call($callback, array $parameters = [], $defaultMethod = null)
     {

@@ -11,22 +11,16 @@ final class ConfigHelper
 {
     /**
      * 获取配置
-     * @param string $key
-     * @param $default
-     * @return mixed
      */
-    public static function get(string $key, $default = null)
+    public static function get(string $key, mixed $default = null): mixed
     {
         return config("plugin.webman-tech.laravel-console.{$key}", $default);
     }
 
     /**
      * 获取全局配置
-     * @param string $key
-     * @param $default
-     * @return mixed
      */
-    public static function getGlobal(string $key, $default = null)
+    public static function getGlobal(string $key, mixed $default = null): mixed
     {
         return config($key, $default);
     }

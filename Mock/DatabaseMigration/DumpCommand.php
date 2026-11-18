@@ -12,7 +12,7 @@ use Illuminate\Filesystem\Filesystem;
 use WebmanTech\LaravelConsole\Mock\LaravelApp;
 
 if (!function_exists('WebmanTech\LaravelConsole\Mock\DatabaseMigration\database_path')) {
-    function database_path(string $path = '')
+    function database_path(string $path = ''): string
     {
         return LaravelApp::getDatabasePath($path);
     }
@@ -56,6 +56,9 @@ final class DumpCommand extends \Illuminate\Database\Console\DumpCommand
         return Command::SUCCESS;
     }
 
+    /**
+     * @return string
+     */
     protected function path(Connection $connection)
     {
         return tap($this->option('path') ?: database_path('schema/' . $connection->getName() . '-schema.sql'), function ($path) {
