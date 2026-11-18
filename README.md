@@ -2,7 +2,7 @@
 
 > Split from [webman-tech/laravel-monorepo](https://github.com/webman-tech/laravel-monorepo)
 
-适用于 webman 的 Laravel 控制台组件，基于 illuminate/console 实现。
+适用于 webman 与非 webman 环境的 Laravel 控制台组件，基于 illuminate/console 实现。
 
 ## 安装
 
@@ -17,8 +17,6 @@ composer require webman/console
 ```
 
 ## 简介
-
-该组件将 Laravel 强大的 Artisan 命令行功能引入 webman 框架中，使开发者能够使用 Laravel 的命令行语法创建和管理命令。
 
 所有方法和配置与 Laravel 几乎一致，因此使用方式可完全参考 [Laravel Artisan 文档](https://laravel.com/docs/artisan)。
 

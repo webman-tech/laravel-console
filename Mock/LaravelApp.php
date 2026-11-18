@@ -15,6 +15,7 @@ use Illuminate\Support\Composer;
 use Illuminate\Support\Facades\Facade;
 use WebmanTech\LaravelConsole\Helper\ConfigHelper;
 use WebmanTech\LaravelConsole\Helper\ExtComponentGetter;
+use WebmanTech\CommonUtils\Local;
 use function WebmanTech\CommonUtils\base_path;
 
 /**
@@ -36,7 +37,7 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
         if (self::$databasePath === null) {
             self::$databasePath = ConfigHelper::get('artisan.migrate_database_path', 'resource/database');
         }
-        return path_combine(base_path(self::$databasePath), $path);
+        return Local::combinePath(base_path(self::$databasePath), $path);
     }
 
     public function registerAll(): void
@@ -53,11 +54,13 @@ final class LaravelApp implements \Illuminate\Contracts\Container\Container, \Ar
 
         foreach ($components as $id => $alias) {
             if (!$this->container->has($id)) {
-                $this->container->singleton($id, fn() => ExtComponentGetter::get($id));
+                // 先解析再 instance 绑定：若绑定为转发 ExtComponentGetter::get 的工厂，
+                // 会与 BaseExtComponentGetter 的容器实时探测互指（get → 容器 → get）造成无限递归
+                $this->container->instance($id, ExtComponentGetter::get($id));
             }
             foreach ($alias as $item) {
                 if (!$this->container->has($item)) {
-                    $this->container->singleton($item, fn() => ExtComponentGetter::get($id));
+                    $this->container->instance($item, ExtComponentGetter::get($id));
                 }
             }
         }

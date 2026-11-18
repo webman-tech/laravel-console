@@ -17,5 +17,8 @@
   },
   "config": {
     "sort-packages": true
+  },
+  "suggest": {
+    "webman-tech/laravel-database": "使用 migration / db.schema 相关命令时需要（或向容器绑定 Illuminate\\Database\\ConnectionResolverInterface）"
   }
 }
