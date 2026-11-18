@@ -2,6 +2,7 @@
 
 namespace WebmanTech\LaravelConsole\Mock\DatabaseMigration;
 
+use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionResolverInterface;
@@ -25,6 +26,10 @@ final class DumpCommand extends \Illuminate\Database\Console\DumpCommand
 {
     public function handle(ConnectionResolverInterface $connections, Dispatcher $dispatcher)
     {
+        if ($this->isProhibited()) {
+            return self::FAILURE;
+        }
+
         /** @var Connection $connection */
         $connection = $connections->connection($database = $this->input->getOption('database'));
 
@@ -47,6 +52,8 @@ final class DumpCommand extends \Illuminate\Database\Console\DumpCommand
         }
 
         $this->components->info($info . ' successfully.');
+
+        return Command::SUCCESS;
     }
 
     protected function path(Connection $connection)
